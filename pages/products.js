@@ -85,16 +85,16 @@ export default function Products() {
                                 <td>
                                     <Link href={`/products/edit/${product._id}?page=${currentPage}`} legacyBehavior>
                                         <a className="inline-flex text-white px-2 m-1 rounded-lg py-2 bg-h-glass hover:bg-glass">
-                                            <PenBox className="w-5 h-7 mr-2 pb-1" />
-                                            Edit
+                                            <PenBox className="w-5 h-7 sm:mr-1 pb-1" />
+                                            <span className="hidden sm:inline">Edit</span> 
                                         </a>
                                     </Link>
                                 </td>
                                 <td>
                                     <Link href={`/products/delete/${product._id}?page=${currentPage}`} legacyBehavior>
                                         <a className="inline-flex text-white px-2 m-1 rounded-lg py-2 bg-red-900 hover:bg-h-glass hover:font-bold hover:text-red-900">
-                                            <Trash2 className="w-5 h-7 mr-1 pb-1" />
-                                            Delete
+                                            <Trash2 className="w-5 h-7 sm:mr-1 pb-1" />
+                                            <span className="hidden sm:inline">Delete</span>
                                         </a>
                                     </Link>
                                 </td>

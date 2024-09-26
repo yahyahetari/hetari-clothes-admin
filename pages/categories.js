@@ -292,14 +292,14 @@ export default function Categories({ scrollToTop }) {
                                 <td>{category?.parent?.name}</td>
                                 <td className="text-center">
                                     <button onClick={() => editCategory(category)} className="inline-flex text-white px-2 rounded-lg py-2 bg-h-glass hover:bg-glass">
-                                        <PenBox className="w-5 h-7 mr-1 pb-1" />
-                                        Edit
-                                    </button>
+                                        <PenBox className="w-5 h-7 sm:mr-1 pb-1" />
+                                        <span className="hidden sm:inline">Edit</span> 
+                                        </button>
                                 </td>
                                 <td className="text-center">
                                     <button onClick={() => confirmDeleteCategory(category)} className="inline-flex text-white px-2 rounded-lg py-2 bg-red-900 hover:bg-h-glass hover:font-bold hover:text-red-900">
-                                        <Trash2 className="w-5 h-7 mr-1 pb-1" />
-                                        Delete
+                                        <Trash2 className="w-5 h-7 sm:mr-1 pb-1" />
+                                        <span className="hidden sm:inline">Delete</span> 
                                     </button>
                                 </td>
                             </tr>
