@@ -25,6 +25,8 @@ export default function SignIn() {
       redirect: false
     })
     
+    console.log("Sign In Result:", result);
+
     if (result?.error) {
       setError(result.error)
     } else if (result?.url) {

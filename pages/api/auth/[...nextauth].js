@@ -6,7 +6,6 @@ import clientPromise from "@/lib/mongodb";
 const adminEmails = ['yahyahetari2002@gmail.com', 'yahyaalhetari5@gmail.com', 'Hazembohloly@gmail.com'];
 
 export const authOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
@@ -14,18 +13,18 @@ export const authOptions = {
     }),
   ],
   adapter: MongoDBAdapter(clientPromise),
-  session: {
-    strategy: "database",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
   callbacks: {
-    async signIn({ user, account, profile, email, credentials }) {
-      if (account.provider === "google" && adminEmails.includes(profile.email)) {
+    async signIn({ user, account, profile }) {
+      console.log("Sign In Attempt:", { user, account, profile });
+      if (account.provider === "google" && adminEmails.includes(user.email)) {
+        console.log("Sign In Successful");
         return true;
       }
+      console.log("Sign In Failed: Not an admin");
       return false;
     },
     async session({ session, user }) {
+      console.log("Session Callback:", { session, user });
       if (adminEmails.includes(session?.user?.email)) {
         session.user.id = user.id;
         return session;
@@ -37,10 +36,11 @@ export const authOptions = {
     signIn: '/auth/signin',
     error: '/auth/error',
   },
+  debug: true, // Enable debug messages in the console
 };
 
-
 export default NextAuth(authOptions);
+
 
 export async function isAdminRequest(req, res) {
   const session = await getServerSession(req, res, authOptions);

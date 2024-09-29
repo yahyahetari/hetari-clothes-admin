@@ -5,6 +5,8 @@ export default function Error() {
   const router = useRouter()
   const { error } = router.query
 
+  console.log("Error Page:", { error });
+
   return (
     <div>
       <h1>Authentication Error</h1>
