@@ -8,14 +8,8 @@ export default function SignIn() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (router.query.error) {
-      setError(router.query.error)
-    }
-  }, [router.query])
-
-  useEffect(() => {
     if (session) {
-      router.push('/')
+      router.push('/');
     }
   }, [session, router])
 
@@ -23,14 +17,12 @@ export default function SignIn() {
     const result = await signIn('google', { 
       callbackUrl: '/',
       redirect: false
-    })
+    });
     
-    console.log("Sign In Result:", result);
-
     if (result?.error) {
-      setError(result.error)
+      setError(result.error);
     } else if (result?.url) {
-      router.push(result.url)
+      router.push(result.url);
     }
   }
 
@@ -43,8 +35,8 @@ export default function SignIn() {
       <h1>Sign In</h1>
       {error && (
         <p style={{color: 'red'}}>
-          {error === 'OAuthAccountNotLinked' 
-            ? 'To confirm your identity, sign in with the same account you used originally.'
+          {error === 'AccessDenied' 
+            ? 'You are not authorized to access this application.'
             : `An error occurred: ${error}`}
         </p>
       )}

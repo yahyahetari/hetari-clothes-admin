@@ -15,20 +15,16 @@ export const authOptions = {
   adapter: MongoDBAdapter(clientPromise),
   callbacks: {
     async signIn({ user, account, profile }) {
-      console.log("Sign In Attempt:", { user, account, profile });
-      if (account.provider === "google" && adminEmails.includes(user.email)) {
-        console.log("Sign In Successful");
-        return true;
-      }
-      console.log("Sign In Failed: Not an admin");
-      return false;
+      // Allow sign in if user's email is in the admin list
+      return adminEmails.includes(user.email);
     },
     async session({ session, user }) {
-      console.log("Session Callback:", { session, user });
+      // Check if user is still an admin (in case admin list changes)
       if (adminEmails.includes(session?.user?.email)) {
-        session.user.id = user.id;
+        session.user.isAdmin = true;
         return session;
       }
+      // If not an admin, return null to prevent session creation
       return null;
     },
   },
@@ -36,15 +32,22 @@ export const authOptions = {
     signIn: '/auth/signin',
     error: '/auth/error',
   },
-  debug: true, // Enable debug messages in the console
+  // This will log out the user if their email is removed from adminEmails
+  events: {
+    async session({ session }) {
+      if (session && !adminEmails.includes(session.user.email)) {
+        // Force sign out if user is no longer an admin
+        session.destroy();
+      }
+    },
+  },
 };
 
 export default NextAuth(authOptions);
 
-
 export async function isAdminRequest(req, res) {
   const session = await getServerSession(req, res, authOptions);
-  if (!adminEmails.includes(session?.user?.email)) {
+  if (!session || !session.user.isAdmin) {
     res.status(401);
     res.end();
     throw 'not an admin';

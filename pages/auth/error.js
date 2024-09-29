@@ -5,15 +5,13 @@ export default function Error() {
   const router = useRouter()
   const { error } = router.query
 
-  console.log("Error Page:", { error });
-
   return (
     <div>
       <h1>Authentication Error</h1>
       <p>An error occurred during authentication: {error}</p>
-      {error === 'OAuthAccountNotLinked' && (
+      {error === 'AccessDenied' && (
         <p>
-          To confirm your identity, please sign in with the same account you used originally.
+          You are not authorized to access this application. If you believe this is an error, please contact the administrator.
         </p>
       )}
       <Link href="/auth/signin">
