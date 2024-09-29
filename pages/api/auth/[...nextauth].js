@@ -1,11 +1,13 @@
-import NextAuth from 'next-auth'
+import NextAuth, {getServerSession} from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import { MongoDBAdapter } from '@auth/mongodb-adapter'
 import clientPromise from "@/lib/mongodb";
+import User from '@/models/User';
 
-const adminEmails = ['yahyahetari2002@gmail.com', 'yahyaalhetari5@gmail.com', 'Hazembohloly@gmail.com'];
+const adminEmails = ['yahyahetari2002@gmail.com','yahyaalhetari5@gmail.com','Hazembohloly@gmail.com'];
 
 export const authOptions = {
+  secret: process.env.SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
@@ -14,30 +16,27 @@ export const authOptions = {
   ],
   adapter: MongoDBAdapter(clientPromise),
   callbacks: {
-    async signIn({ user, account, profile }) {
-      // Allow sign in if user's email is in the admin list
-      return adminEmails.includes(user.email);
-    },
-    async session({ session, user }) {
-      // Check if user is still an admin (in case admin list changes)
+    async session({session, token, user}) {
       if (adminEmails.includes(session?.user?.email)) {
-        session.user.isAdmin = true;
+        // Add session info
+        const sessionId = `session_${Date.now()}`;
+        const deviceInfo = 'Unknown Device'; // Default value
+        
+        await User.findByIdAndUpdate(user.id, {
+          $push: {
+            sessions: {
+              sessionId,
+              deviceInfo,
+              lastLogin: new Date(),
+              isActive: true
+            }
+          }
+        });
+
+        session.sessionId = sessionId;
         return session;
-      }
-      // If not an admin, return null to prevent session creation
-      return null;
-    },
-  },
-  pages: {
-    signIn: '/auth/signin',
-    error: '/auth/error',
-  },
-  // This will log out the user if their email is removed from adminEmails
-  events: {
-    async session({ session }) {
-      if (session && !adminEmails.includes(session.user.email)) {
-        // Force sign out if user is no longer an admin
-        session.destroy();
+      } else {
+        return false;
       }
     },
   },
@@ -45,9 +44,9 @@ export const authOptions = {
 
 export default NextAuth(authOptions);
 
-export async function isAdminRequest(req, res) {
-  const session = await getServerSession(req, res, authOptions);
-  if (!session || !session.user.isAdmin) {
+export async function isAdminRequest(req,res) {
+  const session = await getServerSession(req,res,authOptions);
+  if (!adminEmails.includes(session?.user?.email)) {
     res.status(401);
     res.end();
     throw 'not an admin';
