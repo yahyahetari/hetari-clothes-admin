@@ -19,26 +19,26 @@ export const authOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    session: async ({ session, user }) => {
-      if (adminEmails.includes(session?.user?.email)) {
-        session.user.id = user.id;
-        return session;
-      } else {
-        return false;
-      }
-    },
-    signIn: async ({ user, account, profile }) => {
+    async signIn({ user, account, profile, email, credentials }) {
       if (account.provider === "google" && adminEmails.includes(profile.email)) {
         return true;
       }
       return false;
     },
+    async session({ session, user }) {
+      if (adminEmails.includes(session?.user?.email)) {
+        session.user.id = user.id;
+        return session;
+      }
+      return null;
+    },
   },
   pages: {
     signIn: '/auth/signin',
-    error: '/auth/error', // Add this line
+    error: '/auth/error',
   },
 };
+
 
 export default NextAuth(authOptions);
 

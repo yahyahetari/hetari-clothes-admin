@@ -1,17 +1,36 @@
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function SignIn() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const { error } = router.query
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    if (router.query.error) {
+      setError(router.query.error)
+    }
+  }, [router.query])
 
   useEffect(() => {
     if (session) {
       router.push('/')
     }
   }, [session, router])
+
+  const handleSignIn = async () => {
+    const result = await signIn('google', { 
+      callbackUrl: '/',
+      redirect: false
+    })
+    
+    if (result?.error) {
+      setError(result.error)
+    } else if (result?.url) {
+      router.push(result.url)
+    }
+  }
 
   if (status === 'loading') {
     return <div>Loading...</div>
@@ -20,12 +39,14 @@ export default function SignIn() {
   return (
     <div>
       <h1>Sign In</h1>
-      {error === 'OAuthAccountNotLinked' && (
+      {error && (
         <p style={{color: 'red'}}>
-          To confirm your identity, sign in with the same account you used originally.
+          {error === 'OAuthAccountNotLinked' 
+            ? 'To confirm your identity, sign in with the same account you used originally.'
+            : `An error occurred: ${error}`}
         </p>
       )}
-      <button onClick={() => signIn('google', { callbackUrl: '/' })}>
+      <button onClick={handleSignIn}>
         Sign in with Google
       </button>
     </div>
