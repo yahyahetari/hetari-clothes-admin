@@ -1,4 +1,4 @@
-import NextAuth, { getServerSession } from 'next-auth'
+import NextAuth from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import { MongoDBAdapter } from '@auth/mongodb-adapter'
 import clientPromise from "@/lib/mongodb";
@@ -6,7 +6,7 @@ import clientPromise from "@/lib/mongodb";
 const adminEmails = ['yahyahetari2002@gmail.com', 'yahyaalhetari5@gmail.com', 'Hazembohloly@gmail.com'];
 
 export const authOptions = {
-  secret: process.env.SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
@@ -15,23 +15,21 @@ export const authOptions = {
   ],
   adapter: MongoDBAdapter(clientPromise),
   session: {
-    strategy: "jwt", // Use JWT strategy for sessions
+    strategy: "database",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    session: ({ session, token, user }) => {
+    session: async ({ session, user }) => {
       if (adminEmails.includes(session?.user?.email)) {
+        session.user.id = user.id;
         return session;
       } else {
         return false;
       }
     },
-    jwt: async ({ token, user }) => {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
+  },
+  pages: {
+    signIn: '/auth/signin',
   },
 };
 
