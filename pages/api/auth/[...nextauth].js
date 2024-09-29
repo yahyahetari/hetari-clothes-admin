@@ -1,9 +1,9 @@
-import NextAuth, {getServerSession} from 'next-auth'
+import NextAuth, { getServerSession } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import { MongoDBAdapter } from '@auth/mongodb-adapter'
 import clientPromise from "@/lib/mongodb";
 
-const adminEmails = ['yahyahetari2002@gmail.com','yahyaalhetari5@gmail.com','Hazembohloly@gmail.com'];
+const adminEmails = ['yahyahetari2002@gmail.com', 'yahyaalhetari5@gmail.com', 'Hazembohloly@gmail.com'];
 
 export const authOptions = {
   secret: process.env.SECRET,
@@ -15,21 +15,16 @@ export const authOptions = {
   ],
   adapter: MongoDBAdapter(clientPromise),
   session: {
-    strategy: "jwt",
+    strategy: "jwt", // Use JWT strategy for sessions
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  jwt: {
-    secret: process.env.JWT_SECRET,
-  },
   callbacks: {
-    session: ({session, token}) => {
-      if (token) {
-        session.user.id = token.id;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.image = token.picture;
+    session: ({ session, token, user }) => {
+      if (adminEmails.includes(session?.user?.email)) {
+        return session;
+      } else {
+        return false;
       }
-      return session;
     },
     jwt: async ({ token, user }) => {
       if (user) {
@@ -42,8 +37,8 @@ export const authOptions = {
 
 export default NextAuth(authOptions);
 
-export async function isAdminRequest(req,res) {
-  const session = await getServerSession(req,res,authOptions);
+export async function isAdminRequest(req, res) {
+  const session = await getServerSession(req, res, authOptions);
   if (!adminEmails.includes(session?.user?.email)) {
     res.status(401);
     res.end();
