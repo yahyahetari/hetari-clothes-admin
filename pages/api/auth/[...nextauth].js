@@ -32,7 +32,7 @@ export const authOptions = {
             }
           }
         });
-
+  
         session.sessionId = sessionId;
         return session;
       } else {
@@ -40,6 +40,7 @@ export const authOptions = {
       }
     },
   },
+  
 };
 
 export default NextAuth(authOptions);
