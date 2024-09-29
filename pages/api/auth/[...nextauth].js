@@ -27,9 +27,16 @@ export const authOptions = {
         return false;
       }
     },
+    signIn: async ({ user, account, profile }) => {
+      if (account.provider === "google" && adminEmails.includes(profile.email)) {
+        return true;
+      }
+      return false;
+    },
   },
   pages: {
     signIn: '/auth/signin',
+    error: '/auth/error', // Add this line
   },
 };
 
