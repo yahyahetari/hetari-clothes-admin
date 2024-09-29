@@ -14,13 +14,28 @@ export const authOptions = {
     }),
   ],
   adapter: MongoDBAdapter(clientPromise),
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  jwt: {
+    secret: process.env.JWT_SECRET,
+  },
   callbacks: {
-    session: ({session,token,user}) => {
-      if (adminEmails.includes(session?.user?.email)) {
-        return session;
-      } else {
-        return false;
+    session: ({session, token}) => {
+      if (token) {
+        session.user.id = token.id;
+        session.user.name = token.name;
+        session.user.email = token.email;
+        session.user.image = token.picture;
       }
+      return session;
+    },
+    jwt: async ({ token, user }) => {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
     },
   },
 };
