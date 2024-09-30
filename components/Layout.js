@@ -17,6 +17,7 @@ function GoogleIcon({ className = "w-6 h-6" }) {
     </svg>
   );
 }
+
 export default function Layout({ children }) {
   const { data: session } = useSession();
   const loading = session === undefined;
@@ -31,19 +32,19 @@ export default function Layout({ children }) {
     }
   };
 
-  // Define media queries for screen size
   const isMobileOrLess = useMediaQuery({ query: '(max-width: 815px)' });
+
   if (loading) {
     return (
-        <div className="flex justify-center items-center bg-bg-img bg-cover h-screen bg-glass">
-            <Loader />
-        </div>
+      <div className="flex justify-center items-center bg-bg-img bg-cover h-screen bg-glass">
+        <Loader />
+      </div>
     );
-}
+  }
 
   if (!session) {
     return (
-      <div className="flex items-center justify-center  bg-bg-img bg-cover min-h-screen bg-glass" >
+      <div className="flex items-center justify-center bg-bg-img bg-cover min-h-screen bg-glass">
         <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-1 rounded-2xl shadow-5xl">
           <div className="bg-glass p-8 rounded-xl">
             <h2 className="text-3xl font-bold mb-6 text-gray-800 text-center">Welcome</h2>
@@ -62,12 +63,12 @@ export default function Layout({ children }) {
 
   return (
     <div className="text-white bg-bg-img bg-cover min-h-screen bg-glass overflow-hidden">
-      {isMobileOrLess && <TopBar />} {/* Show TopBar on mobile or less */}
+      {isMobileOrLess && <TopBar />}
       <div className="flex">
-        {!isMobileOrLess && <Nav />} {/* Show Nav on larger screens */}
+        {!isMobileOrLess && <Nav />}
         <main 
           ref={mainRef}
-          className={`flex-grow m-2 w-54 p-4 ${isMobileOrLess ? 'ml-2 h-[500px]' : 'ml-64 '} rounded-lg bg-glass h-[600px] overflow-y-auto w-54 custom-scrollbar`}
+          className={`flex-grow m-2 w-54 p-4 ${isMobileOrLess ? 'ml-2 h-[500px]' : 'ml-64'} rounded-lg bg-glass h-[600px] overflow-y-auto w-54 custom-scrollbar`}
         >
           {React.cloneElement(children, { scrollToTop })}
         </main>
