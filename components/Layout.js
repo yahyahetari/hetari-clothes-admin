@@ -17,7 +17,6 @@ function GoogleIcon({ className = "w-6 h-6" }) {
     </svg>
   );
 }
-
 export default function Layout({ children }) {
   const { data: session, status } = useSession();
   const loading = status === "loading";
