@@ -1,10 +1,9 @@
-import NextAuth from 'next-auth'
+import NextAuth, { getServerSession } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import { MongoDBAdapter } from '@auth/mongodb-adapter'
 import clientPromise from "@/lib/mongodb";
-import User from '@/models/User';
 
-const adminEmails = ['yahyahetari2002@gmail.com','yahyaalhetari5@gmail.com','Hazembohloly@gmail.com'];
+const adminEmails = ['yahyahetari2002@gmail.com', 'yahyaalhetari5@gmail.com', 'Hazembohloly@gmail.com'];
 
 export const authOptions = {
   secret: process.env.SECRET,
@@ -16,24 +15,8 @@ export const authOptions = {
   ],
   adapter: MongoDBAdapter(clientPromise),
   callbacks: {
-    async session({session, token, user}) {
+    session: ({ session, token, user }) => {
       if (adminEmails.includes(session?.user?.email)) {
-        // Add session info
-        const sessionId = `session_${Date.now()}`;
-        const deviceInfo = 'Unknown Device'; // Default value
-        
-        await User.findByIdAndUpdate(user.id, {
-          $push: {
-            sessions: {
-              sessionId,
-              deviceInfo,
-              lastLogin: new Date(),
-              isActive: true
-            }
-          }
-        });
-
-        session.sessionId = sessionId;
         return session;
       } else {
         return false;

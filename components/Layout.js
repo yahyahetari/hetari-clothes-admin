@@ -1,9 +1,9 @@
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import Nav from "./Nav";
 import TopBar from "./TopBar";
 import { useMediaQuery } from "react-responsive";
 import Loader from "./Loader";
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 
 // Google Icon Component
 function GoogleIcon({ className = "w-6 h-6" }) {
@@ -18,26 +18,9 @@ function GoogleIcon({ className = "w-6 h-6" }) {
   );
 }
 export default function Layout({ children }) {
-  const { data: session, status } = useSession();
-  const loading = status === "loading";
+  const { data: session } = useSession();
+  const loading = session === undefined;
   const mainRef = useRef(null);
-
-  useEffect(() => {
-    // Update session info when session changes
-    if (session) {
-      const deviceInfo = `${navigator.platform} - ${navigator.userAgent}`;
-      fetch('/api/updateSessionInfo', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          sessionId: session.sessionId,
-          deviceInfo: deviceInfo
-        }),
-      });
-    }
-  }, [session]);
 
   const scrollToTop = () => {
     if (mainRef.current) {
@@ -50,18 +33,17 @@ export default function Layout({ children }) {
 
   // Define media queries for screen size
   const isMobileOrLess = useMediaQuery({ query: '(max-width: 815px)' });
-
   if (loading) {
     return (
-      <div className="flex justify-center items-center bg-bg-img bg-cover h-screen bg-glass">
-        <Loader />
-      </div>
+        <div className="flex justify-center items-center bg-bg-img bg-cover h-screen bg-glass">
+            <Loader />
+        </div>
     );
-  }
+}
 
   if (!session) {
     return (
-      <div className="flex items-center justify-center bg-bg-img bg-cover min-h-screen bg-glass" >
+      <div className="flex items-center justify-center  bg-bg-img bg-cover min-h-screen bg-glass" >
         <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-1 rounded-2xl shadow-5xl">
           <div className="bg-glass p-8 rounded-xl">
             <h2 className="text-3xl font-bold mb-6 text-gray-800 text-center">Welcome</h2>
@@ -80,12 +62,12 @@ export default function Layout({ children }) {
 
   return (
     <div className="text-white bg-bg-img bg-cover min-h-screen bg-glass overflow-hidden">
-      {isMobileOrLess && <TopBar />}
+      {isMobileOrLess && <TopBar />} {/* Show TopBar on mobile or less */}
       <div className="flex">
-        {!isMobileOrLess && <Nav />}
+        {!isMobileOrLess && <Nav />} {/* Show Nav on larger screens */}
         <main 
           ref={mainRef}
-          className={`flex-grow m-2 w-54 p-4 ${isMobileOrLess ? 'ml-2 h-[500px]' : 'ml-60 '} rounded-lg bg-glass h-[600px] overflow-y-auto w-54 custom-scrollbar`}
+          className={`flex-grow m-2 w-54 p-4 ${isMobileOrLess ? 'ml-2 h-[500px]' : 'ml-64 '} rounded-lg bg-glass h-[600px] overflow-y-auto w-54 custom-scrollbar`}
         >
           {React.cloneElement(children, { scrollToTop })}
         </main>
