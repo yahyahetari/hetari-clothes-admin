@@ -1,7 +1,7 @@
-import NextAuth, {getServerSession} from 'next-auth'
+import NextAuth, { getServerSession } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import { MongoDBAdapter } from '@auth/mongodb-adapter'
-import clientPromise from "@/lib/mongodb";
+import clientPromise, { getDatabase } from "@/lib/mongodb";
 
 const adminEmails = ['yahyahetari2002@gmail.com','yahyaalhetari5@gmail.com','Hazembohloly@gmail.com'];
 
@@ -13,7 +13,9 @@ export const authOptions = {
       clientSecret: process.env.GOOGLE_SECRET
     }),
   ],
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(clientPromise, {
+    databaseName: 'adminusers', // Specify the database name here
+  }),
   callbacks: {
     session: ({session,token,user}) => {
       if (adminEmails.includes(session?.user?.email)) {
